@@ -10,7 +10,7 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         // Ajuste por si tu proyecto está en una subcarpeta
-        $path = str_replace('/market-ball/backend/public', '', $path);
+        $path = str_replace('/trade-ball/backend/public', '', $path);
 
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $route['path'] === $path) {

@@ -1,7 +1,7 @@
 async function cargarProductos() {
     try {
         // Llamamos al archivo index.php a través de la ruta que definimos
-        const response = await fetch('http://localhost/market-ball/backend/public/products');
+        const response = await fetch('http://localhost/trade-ball/backend/public/products');
         
         if (!response.ok) throw new Error('Error en la red');
 
