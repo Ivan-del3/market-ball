@@ -1,84 +1,70 @@
-const API_URL = 'http://localhost/trade-ball/backend/public/products';
+import { Home } from './views/home.js';
+import { Login } from './views/login.js';
 
-async function cargarProductos(categoria = '') {
-    try {
-        const contenedor = document.getElementById('lista-productos');
-        contenedor.innerHTML = '<p class="loading">Cargando productos...</p>';
+// --- 1. EL ENRUTADOR (Decide qué pantalla mostrar) ---
+function enrutador() {
+    const app = document.getElementById('app');
+    const ruta = window.location.hash;
 
-        let urlFinal = API_URL;
-        if (categoria) {
-            urlFinal += `?category=${encodeURIComponent(categoria)}`;
-        }
-
-        const response = await fetch(urlFinal);
-        if (!response.ok) throw new Error(`Error en el servidor: ${response.status}`);
-
-        const productos = await response.json();
-        contenedor.innerHTML = ''; 
-
-        if (productos.length === 0) {
-            contenedor.innerHTML = '<p>No se encontraron productos en esta sección.</p>';
-            return;
-        }
-
-        productos.forEach(p => {
-            contenedor.innerHTML += `
-                <li class="product-card">
-                    <div class="product-info">
-                        <h3>${p.Name}</h3>
-                        <p>${p.Description}</p>
-                        <span class="price">${p.Price}€</span>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn-detail">Ver detalle</button>
-                    </div>
-                </li>
-            `;
-        });
-
-    } catch (error) {
-        console.error("Error al cargar productos:", error);
-        document.getElementById('lista-productos').innerHTML = 
-            '<p class="error">Lo sentimos, no pudimos cargar los productos en este momento.</p>';
+    // Si en la barra de direcciones pone index.html#/login
+    if (ruta === '#/login') {
+        app.innerHTML = Login.render(); // Metemos el HTML
+        Login.init();                   // Activamos los botones
+    } 
+    // Si no pone nada (o pone #/), mostramos los productos
+    else {
+        app.innerHTML = Home.render();
+        Home.init(); 
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    cargarProductos(); 
 
+// --- 2. LÓGICA GLOBAL (Se ejecuta al cargar la página) ---
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Arrancamos el enrutador para que cargue la primera página
+    enrutador();
+
+    // Le decimos que si cambia la URL, vuelva a ejecutar el enrutador
+    window.addEventListener('hashchange', enrutador);
+
+    // Tu código exacto del menú lateral adaptado
     const btnToggle = document.getElementById('btn-toggle-categories');
     const btnClose = document.getElementById('btn-close-categories');
     const dropdown = document.getElementById('category-dropdown');
     const nav = document.getElementById('category-nav');
 
-    btnToggle.addEventListener('click', (evento) => {
+    btnToggle.addEventListener('click', function(evento) {
         evento.stopPropagation();
         dropdown.classList.add('is-open');
     });
 
-    const cerrarMenu = () => {
+    function cerrarMenu() {
         dropdown.classList.remove('is-open');
-    };
+    }
 
     btnClose.addEventListener('click', cerrarMenu);
 
-    document.addEventListener('click', (evento) => {
+    document.addEventListener('click', function(evento) {
         if (!dropdown.contains(evento.target) && !btnToggle.contains(evento.target)) {
             cerrarMenu();
         }
     });
 
     if (nav) {
-        nav.addEventListener('click', (evento) => {
-
+        nav.addEventListener('click', function(evento) {
             const boton = evento.target.closest('.category-link');
             
             if (boton) {
                 const categoria = boton.getAttribute('data-cat');    
                 console.log("Filtrando por:", categoria || "Todas");
                 
-                cargarProductos(categoria);
+                // Si estamos en la página principal, le decimos al Home que cargue esa categoría
+                if (window.location.hash === '' || window.location.hash === '#/') {
+                    Home.init(categoria);
+                }
+                
+                cerrarMenu();
             }
         });
     }
