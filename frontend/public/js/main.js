@@ -4,14 +4,14 @@ import { Login } from './views/login.js';
 // --- 1. EL ENRUTADOR (Decide qué pantalla mostrar) ---
 function enrutador() {
     const app = document.getElementById('app');
-    const ruta = window.location.hash;
+    const ruta = window.location.pathname;
 
-    // Si en la barra de direcciones pone index.html#/login
-    if (ruta === '#/login') {
+    // Si en la barra de direcciones pone index.html/login
+    if (ruta === '/login') {
         app.innerHTML = Login.render(); // Metemos el HTML
         Login.init();                   // Activamos los botones
     } 
-    // Si no pone nada (o pone #/), mostramos los productos
+    // Si no pone nada (o pone /), mostramos los productos
     else {
         app.innerHTML = Home.render();
         Home.init(); 
@@ -26,7 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
     enrutador();
 
     // Le decimos que si cambia la URL, vuelva a ejecutar el enrutador
-    window.addEventListener('hashchange', enrutador);
+    window.addEventListener('popstate', enrutador);
+
+    document.body.addEventListener('click', (e) => {
+        const link = e.target.closest('a[data-link]');
+        if(!link) return;
+
+        e.preventDefault();
+
+        history.pushState({}, "", link.getAttribute('href'));
+        enrutador();
+    })
 
     // Tu código exacto del menú lateral adaptado
     const btnToggle = document.getElementById('btn-toggle-categories');
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Filtrando por:", categoria || "Todas");
                 
                 // Si estamos en la página principal, le decimos al Home que cargue esa categoría
-                if (window.location.hash === '' || window.location.hash === '#/') {
+                if (window.location.pathname === '/') {
                     Home.init(categoria);
                 }
                 
