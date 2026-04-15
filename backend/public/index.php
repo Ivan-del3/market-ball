@@ -10,9 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 require_once __DIR__ . '/../core/Router.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
 
 $router = new Router();
 
 $router->add('GET', '/products', 'ProductController@index');
+$router->add('POST', '/login', 'AuthController@login');
 
 $router->run();
